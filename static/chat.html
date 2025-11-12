@@ -1,0 +1,54 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brenda Mae – VSP</title>
+<style>
+body{font-family:system-ui,Arial;margin:0;padding:16px}
+#log{border:1px solid #ddd;padding:12px;height:420px;overflow:auto;border-radius:8px}
+.msg{margin:8px 0}
+.user{font-weight:600}
+.assistant{color:#222}
+.controls{margin-top:10px;display:flex;gap:8px}
+input,button{padding:10px;border-radius:8px;border:1px solid #ccc}
+button{cursor:pointer}
+small{color:#666}
+</style>
+<div>
+  <h2>Brenda Mae</h2>
+  <div id="log"></div>
+  <div class="controls">
+    <input id="box" placeholder="Type your question..." style="flex:1">
+    <button id="send">Send</button>
+  </div>
+  <small id="sid"></small>
+</div>
+<script>
+let SID = null, BASE = "";
+async function start(){
+  // allow ?base=https://your-app.onrender.com passed by Qualtrics
+  const params = new URLSearchParams(location.search);
+  BASE = params.get("base") || "";
+  const meta = {learner_id: params.get("learner_id"), case_id: params.get("case_id")};
+  const r = await fetch(`${BASE}/new_session`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(meta)});
+  const j = await r.json();
+  SID = j.session_id; document.getElementById("sid").textContent = `Session: ${SID}`;
+  add("assistant", j.greeting);
+}
+function add(role, text){
+  const div = document.createElement("div");
+  div.className = "msg " + role;
+  div.textContent = (role==="user"?"You: ":"Brenda: ") + text;
+  document.getElementById("log").appendChild(div);
+  document.getElementById("log").scrollTop = 1e9;
+}
+async function send(){
+  const box = document.getElementById("box");
+  const msg = box.value.trim(); if(!msg) return;
+  add("user", msg); box.value="";
+  const r = await fetch(`${BASE}/chat`, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({session_id: SID, message: msg})});
+  const j = await r.json(); add("assistant", j.reply);
+}
+document.getElementById("send").onclick = send;
+document.getElementById("box").addEventListener("keydown", e=>{ if(e.key==="Enter") send(); });
+start();
+</script>

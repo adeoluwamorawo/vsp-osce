@@ -1,0 +1,29 @@
+# Ignore virtual environment folders
+venv/
+.venv/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment and secret files
+.env
+.env.*
+
+# OS/system files
+.DS_Store
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Render or deployment artifacts (if any)
+*.sqlite3
+instance/
